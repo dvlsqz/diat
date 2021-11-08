@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <h5 class="modal-title">Detalles</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times</span>
+    </button>
+</div>
+<div class="modal-body">
+    <h5><strong>IBM: </strong>{{ object.username }}</h5>
+    <h5><strong>Nombre: </strong>{{ object.first_name }}</h5>
+    <h5><strong>Apellido: </strong>{{ object.last_name }}</h5>
+    <h5><strong>Email: </strong>{{ object.email }}</h5>
+    <h5><strong>Grupo: </strong>{{ object.groups.values.first.name }}</h5>
+    <h5><strong>Estado: </strong>{% if object.is_active %} Activo {% else %} Inactivo {% endif %}</h5>
+</div>

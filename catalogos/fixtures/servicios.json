@@ -1,0 +1,184 @@
+[
+  {
+    "pk":1 ,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Medicina de Hombres"
+    }
+  },
+    {
+    "pk":2 ,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Medicina de Mujeres"
+    }
+  },
+    {
+    "pk": 3,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Cirugía de Hombres"
+    }
+  },
+    {
+    "pk":4 ,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Cirugía de Mujeres"
+    }
+  },
+    {
+    "pk": 5,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Quemaduras"
+    }
+  },
+    {
+    "pk": 6,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Intermedios"
+    }
+  },
+    {
+    "pk": 7,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "UCIA"
+    }
+  },
+    {
+    "pk": 8,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Pos Parto"
+    }
+  },
+    {
+    "pk": 9,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Alto Riesgo Gine"
+    }
+  },
+    {
+    "pk": 10,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Sépsis Ginecología"
+    }
+  },
+    {
+    "pk":11 ,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Ginecología y Obstetricia"
+    }
+  },
+    {
+    "pk": 12,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Trauma de Hombres"
+    }
+  },
+    {
+    "pk": 13,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Trauma de Mujeres"
+    }
+  },
+    {
+    "pk": 14,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Tx y Cx Pediatríca"
+    }
+  },
+    {
+    "pk": 15,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Pediatría"
+    }
+  },
+    {
+    "pk": 16,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Plan Canguro"
+    }
+  },
+    {
+    "pk":17 ,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "UCIP"
+    }
+  },
+    {
+    "pk": 18,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "UCIN"
+    }
+  },
+    {
+    "pk": 19,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Alto Riesgos Nenonatos"
+    }
+  },
+    {
+    "pk": 20,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Minimo Riesgo Neonatos"
+    }
+  },
+    {
+    "pk": 21,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Emergencia General"
+    }
+  },
+    {
+    "pk":22,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Emergencia Pediatría"
+    }
+  },
+    {
+    "pk":23,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Emergencia Trauma"
+    }
+  },
+    {
+    "pk":24,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Emergencia Cirugía"
+    }
+  },
+    {
+    "pk":25,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Emergencia Ginecobs"
+    }
+  },
+    {
+    "pk":26,
+    "model": "catalogos.Servicio",
+    "fields": {
+      "nombre": "Otros"
+    }
+  }
+]

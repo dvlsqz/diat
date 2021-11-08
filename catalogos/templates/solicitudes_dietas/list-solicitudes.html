@@ -1,0 +1,174 @@
+{% extends 'base.html' %}}
+{% load static from staticfiles %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'datatables.net-bs4/css/dataTables.bootstrap4.css' %}">
+    <link rel="stylesheet" href="{% static 'datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="card card-nav-tabs">
+        <div class="card-header card-header-primary text-center">
+            Dietas Solicitadas
+        </div>
+        <div class="card-body">
+            <h4 class="card-title pull-left">Listado</h4>
+            {% url 'catalogos:solicitud-dieta-create' as create_url %}
+            {% include 'snippets/link-and-search.html' with create_url=create_url %}
+            <table class="table table-bordered table-striped table-sm" id="data-table"></table>
+        </div>
+    </div>
+    {% include 'snippets/modal-content.html' %}
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" charset="utf8" src="{% static 'datatables.net/js/jquery.dataTables.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-bs4/js/dataTables.bootstrap4.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-colreorder/js/dataTables.colReorder.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8" src="{% static 'moment/min/moment.min.js' %}"></script>
+    <!--suppress JSUnresolvedFunction -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/dataTable.js' %}"></script>
+    <script src="{% static 'js/requestForm.js' %}"></script>
+    <!--suppress JSUnresolvedFunction, ES6ModulesDependencies -->
+    <script type="text/javascript">
+        // Sobreescribir urls para los botones
+        urlDetalles = "{% url 'catalogos:solicitud-dieta-details' pk=0 %}";
+        urlEliminar = "{% url 'catalogos:solicitud-dieta-delete' pk=0 %}";
+        const urlServidas = "{% url 'catalogos:solicitud-dieta-servida' pk=0 %}";
+
+        async function servirDieta(url, id) {
+            const myHeaders = new Headers();
+            myHeaders.append('Content-Type', 'application/json');
+            myHeaders.append('X-CSRFToken', getCookie('csrftoken'));
+
+            const ipAPI = '{% url 'catalogos:solicitud-dieta-total-solicitudes' pk=0 %}'.replace('0', id);
+
+            const totalSolicitudes = fetch(ipAPI, {
+                method: 'POST',
+                headers: myHeaders,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    swal.fire({
+                        title: '¿Establecer Solicitud de Dieta como Servida?',
+                        text: "El proceso no se puede revertir!",
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, acepto!',
+                        cancelButtonText: 'No, cancelar!',
+                        reverseButtons: true
+                    }).then(async (result) => {
+                        if (result.value) {
+                            const {value: servidas} = await Swal.fire({
+                                title: 'Cantidad de Dietas Servidas',
+                                text: `Se realizarón ${data.total} solicitudes de dietas para este registro.`,
+                                input: 'number',
+                                inputValue: 0,
+                                confirmButtonText: 'Aceptar',
+                                cancelButtonText: 'Cancelar!',
+                                showCancelButton: true,
+                                inputValidator: (value) => {
+                                    if (!value) {
+                                        return 'Debe ingresar un número.'
+                                    } else {
+                                        if (value < 0) return 'La cantidad ingresada no debe ser menor 0.';
+                                        if (value > data.total) return 'La cantidad ingresada no debe superar la cantidad de solicitudes';
+                                    }
+                                }
+                            });
+
+                            if (servidas) {
+                                $.ajax({
+                                    url: url,
+                                    method: 'POST',
+                                    headers: {'X-CSRFToken': getCookie('csrftoken')},
+                                    data: {
+                                        servidas: servidas,
+                                    },
+                                    success: function (data) {
+                                        if (data.result === 'OK') {
+                                            success_function();
+                                            swal("¡Completado!", "Se ha actualizado el registro.", "success");
+                                            $table.DataTable().ajax.reload(null, false);
+                                        } else {
+                                            swal("Error", "¡Ha ocurrido un error inesperado al realizar la petición!", "error");
+                                        }
+                                    },
+                                    error: function (error) {
+                                        swal("Error", "", "error");
+                                        let message = '¡Ocurrio un error inesperado al intentar modificar el registro!';
+                                        if (error.responseJSON) {
+                                            message = error.responseJSON.result;
+                                        }
+                                        swal("Error", message, "error");
+                                    }
+                                });
+                            }
+                        }
+                    })
+                });
+        }
+
+        function servidasBtn(data) {
+            const url = `${urlServidas.replace("0", data)}`;
+            const btnCustom = `<button onclick="servirDieta('${url}', ${data})" class="btn btn-success btn-fab btn-icon btn-round btn-sm" title="Marcar como dieta servida" data-url="${url}"><i class="tim-icons icon-check-2">></i></button>`;
+            return `${btnCustom}`;
+        }
+
+        function loadDataTable() {
+            let url = "{% url 'catalogos:solicitudes-dietas-json' solicitudes=1 %}";
+            let language_url = "{% static 'datatables-translate.json' %}";
+            let columns = [
+                {
+                    data: '0',
+                    title: 'Código',
+                    responsivePriority: 1,
+                    width: '15%',
+                },
+                {
+                    data: '1',
+                    title: 'Fecha',
+                    responsivePriority: 2,
+                    render: (data) => moment(data).format('DD/MM/YYYY HH:mm:ss')
+                },
+                {
+                    data: '2',
+                    title: 'Jornada',
+                    responsivePriority: 2
+                },
+                {
+                    data: '3',
+                    title: 'Servicio',
+                    responsivePriority: 2,
+                },
+                {
+                    data: '4',
+                    title: 'Usuario',
+                    responsivePriority: 2
+                },
+                {
+                    data: '0',
+                    title: 'Acciones',
+                    searchable: false,
+                    sortable: false,
+                    width: '18%',
+                    responsivePriority: 3,
+                    render: (data) => `<div class="text-center">${detailsBtn(data, true)}${deleteBtn(data)}${servidasBtn(data)}</div>`
+                }
+            ];
+
+            $table.DataTable(getDefaultDataTables(url, language_url, columns));
+        }
+
+        $(document).ready(function () {
+            defaultConfig();
+            loadDataTable()
+        });
+    </script>
+{% endblock %}

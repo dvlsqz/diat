@@ -1,0 +1,77 @@
+{% extends 'base.html' %}}
+{% load static from staticfiles %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'datatables.net-bs4/css/dataTables.bootstrap4.css' %}">
+    <link rel="stylesheet" href="{% static 'datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="card card-nav-tabs">
+        <div class="card-header card-header-primary text-center">
+            Dietas
+        </div>
+        <div class="card-body">
+            <h4 class="card-title pull-left">Listado</h4>
+            {% url 'catalogos:dieta-create' as create_url %}
+            {% include 'snippets/button-and-search.html' with create_url=create_url %}
+            <table class="table table-bordered table-striped table-sm" id="data-table"></table>
+        </div>
+    </div>
+    {% include 'snippets/modal-content.html' %}
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" charset="utf8" src="{% static 'datatables.net/js/jquery.dataTables.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-bs4/js/dataTables.bootstrap4.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-colreorder/js/dataTables.colReorder.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+        <!--suppress JSUnresolvedFunction -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/dataTable.js' %}"></script>
+    <script src="{% static 'js/requestForm.js' %}"></script>
+    <!--suppress JSUnresolvedFunction -->
+    <script type="text/javascript">
+        // Sobreescribir urls para los botones
+        urlEditar = "{% url 'catalogos:dieta-update' pk=0 %}";
+        urlEliminar = "{% url 'catalogos:dieta-delete' pk=0 %}";
+
+        function loadDataTable() {
+            let url = "{% url 'catalogos:dietas-json' %}";
+            let language_url = "{% static 'datatables-translate.json' %}";
+            let columns = [
+                {
+                    data: '0',
+                    title: 'Código',
+                    responsivePriority: 1,
+                    width: '15%',
+                },
+                {
+                    data: '1',
+                    title: 'Nombre',
+                    responsivePriority: 2
+                },
+                {
+                    data: '0',
+                    title: 'Acciones',
+                    searchable: false,
+                    sortable: false,
+                    width: '18%',
+                    responsivePriority: 3,
+                    render: (data) => simpleBtns(data, false, false)
+                }
+            ];
+
+            $table.DataTable(getDefaultDataTables(url, language_url, columns));
+        }
+
+        $(document).ready(function(){
+            defaultConfig();
+            loadDataTable()
+        });
+    </script>
+{% endblock %}

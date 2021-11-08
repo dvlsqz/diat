@@ -1,0 +1,172 @@
+[
+  {
+    "pk": 1,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "LIQUIDOS CLAROS"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "LIQUIDOS COMPLETOS"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "PAPILLAS"
+    }
+  },
+  {
+    "pk":4,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "BLANDAS"
+    }
+  },
+  {
+    "pk":5,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "HIPERPROTEICA"
+    }
+  },
+  {
+    "pk":6,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "HIPOPROTEICA"
+    }
+  },
+  {
+    "pk":7,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "HIPOGRASA"
+    }
+  },
+  {
+    "pk":8,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "HIPOSODICA"
+    }
+  },
+  {
+    "pk":9,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "BAJA PURINAS"
+    }
+  },
+  {
+    "pk":10,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "DIABE 1200"
+    }
+  },
+  {
+    "pk":11,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "DIAB. 1500"
+    }
+  },
+  {
+    "pk":12,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "DIAB 1800"
+    }
+  },
+  {
+    "pk":13,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "DIAB 2000"
+    }
+  },
+  {
+    "pk":14,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "DIAB 2200"
+    }
+  },
+  {
+    "pk":15,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "PED Menor de 6 meses"
+    }
+  },
+  {
+    "pk":16,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "PED 6 a 9 m"
+    }
+  },
+  {
+    "pk":17,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "PED 9 a 12 m"
+    }
+  },
+  {
+    "pk":18,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "PED 12 m a 5 a"
+    }
+  },
+  {
+    "pk":19,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "LIBRE para madres"
+    }
+  },
+  {
+    "pk":20,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "LIBRE"
+    }
+  },
+  {
+    "pk":21,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "INSTRUCTIVO"
+    }
+  },
+  {
+    "pk":22,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "OTRAS"
+    }
+  },
+  {
+    "pk":23,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "DE VIAJE",
+      "viaje": true
+    }
+  },
+  {
+    "pk":24,
+    "model": "catalogos.Dieta",
+    "fields": {
+      "nombre": "NPO",
+      "npo": true
+    }
+  }
+]

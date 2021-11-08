@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static from staticfiles %}
+{% load auth_extras %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header card-header-primary text-center">
+            Solicitudes de Dietas No. {{ object.pk }}
+        </div>
+        <div class="card-body">
+            <button class="btn btn-info btn-sm pull-right" onclick="exportData()">
+                Imprimir
+            </button>
+            <br>
+            <hr>
+
+            <h6>Detalles de la Solicitud de Dieta</h6>
+
+            <p class="pull-right font-weight-bold">Total Dietas Solicitadas: {{ total_dietas_solicitadas }}</p>
+            <p><strong>Fecha: </strong><span>{{ object.created | date:"d/m/Y H:i:s" }}</span></p>
+            <p>
+                <strong>Jornada: </strong><span>{{ object.jornada.nombre }}&nbsp; {{ object.jornada.hora_inicio }}&nbsp; {{ object.jornada.hora_fin }}</span>
+            </p>
+            {% if object.servicio %}
+                <p><strong>Servicio: </strong><span>{{ object.servicio.nombre| default_if_none:'N/A' }}</span></p>
+            {% endif %}
+            <p><strong>Usuario que realizo el registro: </strong><a href="#" class="text-info details-button"
+                                                                    data-url="{% url 'catalogos:user-details' pk=object.usuario_id %}">{{ object.usuario.first_name|default_if_none:"Nombre No Ingresado" }}&nbsp;{{ object.usuario.last_name|default_if_none:" Apelido No Ingresado" }}</a>
+            </p>
+            {% if object.servida %}
+                <p><strong>Usuario que sirvio las solicitudes: </strong><a href="#" class="text-info details-button"
+                                                                           data-url="{% url 'catalogos:user-details' pk=object.usuario_sirvio_id %}">{{ object.usuario_sirvio.first_name|default_if_none:"Nombre No Ingresado" }}&nbsp;{{ object.usuario_sirvio.last_name|default_if_none:" Apelido No Ingresado" }}</a>
+                </p>
+                <p><strong>Total de dietas
+                    servidas: </strong><span>{{ object.total_dietas_servidas| default_if_none:0 }}</span></p>
+            {% endif %}
+            <hr>
+            {% for detalle in  detalles %}
+                <p class="font-weight-bold"><strong>Dieta: {{ detalle.dieta_nombre }}</strong>&nbsp;
+                    Total {{ detalle.total }}</p>
+                    <p>No. de Camas | Observación: </p>
+                <ul>
+                    {% for cama in detalle.camas %}
+                        {% if cama.no_cama is not None %}
+                            <li>{{ cama.no_cama|default_if_none:"" }}</li>
+                        {% endif %}
+                    {% endfor %}
+                    {% for descripcion in detalle.descripciones %}
+                        {% if descripcion.especificar is not None %}
+                            <li>{{ descripcion.especificar|default_if_none:"" }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        </div>
+        <div class="card-footer text-right">
+            {% if object.servida %}
+                <a class="btn btn-sm btn-secondary" href="{% url 'catalogos:solicitudes-dietas-servidas' %}">
+                    <i class="fa fa-arrow-left"></i> Volver
+                </a>
+            {% else %}
+                {% if request.user|has_group:"Administrador" %}
+                    <a class="btn btn-sm btn-secondary" href="{% url 'catalogos:solicitudes-dietas' %}">
+                        <i class="fa fa-arrow-left"></i> Volver
+                    </a>
+                {% elif request.user|has_group:"Encargado" %}
+                    <a class="btn btn-sm btn-secondary" href="{% url 'catalogos:solicitudes-dietas-encargado' %}">
+                        <i class="fa fa-arrow-left"></i> Volver
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    {% include 'snippets/modal-content.html' %}
+{% endblock %}
+
+{% block javascript %}}
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'inputmask/dist/min/jquery.inputmask.bundle.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        urlPDF = "{% url 'catalogos:solicitud-dieta-excel' pk=object.pk %}";
+
+        $('.details-button').on('click', function () {
+            const url = $(this).data('url');
+            $('#form-modal-content').load(url, function () {
+                $('#form-modal').modal('show');
+            });
+        });
+
+        function exportData() {
+            window.open(urlPDF, '_blank');
+        }
+
+    </script>
+{% endblock %}

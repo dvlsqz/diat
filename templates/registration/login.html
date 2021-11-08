@@ -1,0 +1,66 @@
+{% load static from staticfiles %}<!DOCTYPE html>
+<html lang="{% block html_language_code %}en{% endblock %}">
+<head>
+    <title>{% block title %}Nutrición{% endblock %} | IGSS</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="ROBOTS" content="ALL"/>
+    <meta name="MSSmartTagsPreventParsing" content="true"/>
+    <meta name="description" content="{% block description %}{% endblock %}"/>
+    <link rel="stylesheet" href="{% static "css/output.css" %}">
+    <link href="{% static 'assets/css/black-dashboard.css' %}" rel="stylesheet"/>
+
+    <style>
+
+
+        .content {
+            top: 50%;
+            margin-top: 10%; /* half height*/
+        }
+    </style>
+
+</head>
+<body class="white-content">
+<div class="background">
+    <div class="content">
+        <div class="text-center">
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <span><strong class="h1 text-white"> Porfavor corriga los errores de abajo:</strong></span>
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="row align-items-center">
+            <div class="col-4"></div>
+            <div class="col-4">
+                <h1 class="text-dark"></h1>
+                <form method="post" action="" class="form-input">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next|default:"/" }}">
+                    <div>
+                        <label for="id_username">IBM:</label>
+                        {% if form.username.errors %}
+                            <span class="error">{{ form.username.errors|join:", " }}</span>
+                        {% endif %}
+                        {{ form.username }}
+                    </div>
+                    <div>
+                        <label for="id_password">Contraseña:</label>
+                        {% if form.password.errors %}
+                            <span class="error">{{ form.password.errors|join:", " }}</span>
+                        {% endif %}
+                        {{ form.password }}
+                    </div>
+                    <p>
+                        <input type="submit" value="Iniciar Sesión" class="cta"/>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

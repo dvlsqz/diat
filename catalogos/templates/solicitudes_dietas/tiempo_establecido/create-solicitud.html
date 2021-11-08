@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static from staticfiles %}
+{% load auth_extras %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'select2-bootstrap4-theme/dist/select2-bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'inputmask/css/inputmask.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="card card-nav-tabs border border-info">
+        <div class="card-header card-header-primary text-center">
+            Nueva Solicitud de Dieta
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'catalogos:solicitud-dieta-te-create' %}" autocomplete="off">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="title-block">
+                            <h4 class="title">Solicitud de Dieta</h4>
+                            <hr/>
+                        </div>
+                        <div class="form-horizontal">
+                            {# Agrega datos del formset #}
+                            {{ formsetDetalles.management_form }}
+                            {% crispy form %}
+                        </div>
+                        <br>
+
+
+                        <div class="row">
+                            <div class="col-12">
+                                {% url 'catalogos:detalle-solicitud-dieta-create' as create_url %}
+                                <button type="button" data-url="{{ create_url }}" id="add-button"
+                                        class="btn btn-sm btn-success pull-right add-button"><i
+                                        class="tim-icons icon-simple-add"></i>&nbsp; Agregar
+                                </button>
+                            </div>
+                            <div class="col-12 alert alert-info">
+                                <span><b>Total de Dietas Solicitadas <strong id="total_dietas">0</strong></b></span>
+                            </div>
+
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>Dieta</th>
+                                    <th>No de Cama</th>
+                                    <th>Observación</th>
+                                </tr>
+                                </thead>
+                                <tbody id="container-tablaDetalles">
+                                </tbody>
+                            </table>
+                        </div>
+                        <br>
+                        <hr>
+                        <div class="card-footer text-right">
+                            <button type="button" class="btn btn-sm btn-success" id="btn-guardar">
+                                <i class="fa fa-save"></i> Guardar
+                            </button>
+                            {% if request.user|has_group:"Administrador" %}
+                                <a class="btn btn-sm btn-secondary" href="{% url 'catalogos:solicitudes-dietas' %}">
+                                    <i class="fa fa-times"></i> Cancelar
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% include 'snippets/modal-content.html' %}
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" charset="utf8" src="{% static 'js/main.js' %}"></script>
+    <script type="text/javascript" charset="utf8" src="{% static 'select2/dist/js/select2.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'inputmask/dist/min/jquery.inputmask.bundle.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8" src="{% static 'js/solicitud-dieta/detalles.js' %}"></script>
+    <!--suppress JSUnresolvedFunction, JSUnresolvedVariable, JSUnfilteredForInLoop -->
+    <script>
+        let $selectDieta;
+        let $btnGuardar = $("#btn-guardar");
+        let $detalles = $('#container-tablaDetalles');
+        let $form = $('form');
+        let urlGetDieta = "{% url 'catalogos:dieta-get' pk=0 %}";
+
+        $('#form-modal').on('hide.bs.modal', function () {
+            loadModalDefaultComponents();
+        });
+
+        function formAjaxSubmit() {
+        }
+
+        $('#form-modal').on('shown.bs.modal', function () {
+            loadModalDefaultComponents($(this));
+            $selectDieta = $('#id_dieta');
+            $("#div_id_especificar").css("display", "none");
+            $("#div_id_no_cama").css("display", "none");
+            eventsSelectDieta();
+            $('#nuevo-modal-button').on('click', function () {
+                addDetalle();
+            });
+        });
+
+        function eventsSelectDieta() {
+            $selectDieta.on('select2:select', function (e) {
+                let data = e.params.data;
+
+                // Resetear Auxiliares del formulario de dietas para la solicitud
+                auxNombreDieta = "";
+                auxNPO = false;
+                auxViaje = false;
+
+                // Obtener dieta de la bd
+                const myHeaders = new Headers();
+                myHeaders.append('Content-Type', 'application/json');
+                myHeaders.append('X-CSRFToken', getCookie('csrftoken'));
+
+                const ipAPI = urlGetDieta.replace('0', data.id);
+
+                fetch(ipAPI, {
+                    method: 'GET',
+                    headers: myHeaders,
+                })
+                    .then(response => response.json())
+                    .then(({nombre, npo, viaje}) => {
+
+                        // Validaciones
+                        auxNombreDieta = nombre;
+                        auxNPO = npo;
+                        auxViaje = viaje;
+                        if (nombre.toLowerCase() === "otras" || viaje) {
+                            $("#div_id_especificar").css("display", "block");
+                            $("#id_especificar").focus();
+                            $("#id_no_cama").val(null);
+                            $("#div_id_no_cama").css("display", "none");
+                        } else {
+                            $("#div_id_especificar").css("display", "none");
+                            $("#div_id_no_cama").css("display", "block");
+                            $("#id_no_cama").focus();
+                            $("#id_especificar").val(null);
+                        }
+                    }, () => {
+                        $("#id_especificar").val(null);
+                        $("#id_no_cama").val(null);
+                        $("#div_id_especificar").css("display", "none");
+                        $("#div_id_no_cama").css("display", "none");
+                    });
+            });
+        }
+
+
+        $(document).ready(function () {
+            loadDefaultComponents();
+
+            $btnGuardar.on('click', function () {
+
+                Swal.fire({
+                    title: '¿Esta seguro de guardar la solicitud?',
+                    html: templateConfirmacion(),
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+
+                        $btnGuardar.attr("disabled", true);
+
+                        // Sobreescribir form para enviar la imagen y los datos de los formularios de producto, precios,
+                        let formData = new FormData();
+
+                        // Agregamos la solicitud de dieta dentro del formdata
+                        const solicitudFields = $('form').serializeFormJSON();
+                        for (let key in solicitudFields) {
+                            if (key !== 'csrfmiddlewaretoken') formData.append(key, solicitudFields[key].toString());
+                        }
+
+                        // Agregamos los datos de detalles
+                        let aux = 0;
+                        $('#container-tablaDetalles > tr').each(function () {
+                            const dietaId = $($(this).find('td')[0]).data('value');
+                            const no_cama = $($(this).find('td')[1]).data('value');
+                            const especificar = $($(this).find('td')[2]).data('value');
+                            formData.set(`Detalles-${aux}-dieta`, dietaId);
+                            formData.set(`Detalles-${aux}-no_cama`, no_cama);
+                            formData.set(`Detalles-${aux}-especificar`, especificar);
+                            aux += 1; // Actualizar contador
+                        });
+                        // Actualizar cantidad del formset con el total de registros agregados
+                        formData.set('Detalles-TOTAL_FORMS', aux);
+
+                        if (aux === 0) {
+                            swal("¡Error!", "No se puede guardar el registro si no se han agregado dietas.", "error");
+                            $btnGuardar.attr("disabled", false);
+                            return;
+                        }
+
+
+                        $.ajax({
+                            url: $form.attr('action'),
+                            type: 'POST',
+                            headers: {'X-CSRFToken': getCookie('csrftoken')},
+                            cache: false,
+                            dataType: 'json',
+                            processData: false,
+                            contentType: false,
+                            data: formData,
+                            success: function () {
+                                $('form').trigger('reset');
+                                $detalles.html(null);
+                                countDetalles = 0;
+                                swal("¡Completado!", 'Se ha guardado el registro.', "success");
+                                $("#total_dietas").text(countDetalles);
+                                $('#id_jornada').val(null).trigger('change');
+                                $('#id_servicio').val(null).trigger('change');
+                                $btnGuardar.attr("disabled", false);
+                            },
+                            error: function (resp) {
+                                if (resp.responseJSON) {
+                                    swal("¡Error!", resp.responseJSON.Messages.join('\n'), "error");
+                                } else {
+                                    swal("¡Error!", "Error inesperado al guardar el registro.", "error");
+                                }
+                                $btnGuardar.attr("disabled", false);
+                            }
+                        });
+                    }
+                });
+            });
+
+        });
+
+    </script>
+{% endblock %}

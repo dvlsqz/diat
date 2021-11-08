@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static from staticfiles %}
+{% load auth_extras %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'select2-bootstrap4-theme/dist/select2-bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'inputmask/css/inputmask.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="card card-nav-tabs">
+        <div class="card-header card-header-primary text-center">
+            Nueva Solicitud de Dieta
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'catalogos:tipos-informes' %}" autocomplete="off" id="formInforme">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="title-block">
+                            <h4 class="title">Solicitud de Dieta</h4>
+                            <hr/>
+                        </div>
+                        {% crispy form %}
+                        <br>
+                    </div>
+                </div>
+            </form>
+            <br>
+            <br>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card card-chart">
+                        <div class="card-header">
+                            <h5 class="card-category">Solicitudes de Dietas</h5>
+                            <h3 class="card-title">Estado de Dietas</h3>
+                            <h3 class="card-title total-solicitudes" id="total-solicitudes"><em
+                                    class="tim-icons icon-bell-55 text-primary"></em></h3>
+                            <button class="btn btn-sm btn-success btn-sm pull-right" onclick="getPdfEstadoDietas()">
+                                Exportar a PDF
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-solicitudes-dietas-totales"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="card card-chart">
+                        <div class="card-header">
+                            <h5 class="card-category">Solicitudes De Dietas</h5>
+                            <h3 class="card-title">Solicitudes Por Jornada</h3>
+                            <button class="btn btn-sm btn-success btn-sm pull-right" onclick="getPdfsJornadas()">
+                                Exportar a PDF
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-solicitudes-jornadas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card card-chart">
+                        <div class="card-header">
+                            <h5 class="card-category">Solicitudes De Dietas Diarias</h5>
+                            <h3 class="card-title">Solicitudes Por Servicio</h3>
+                            <button class="btn btn-sm btn-success btn-sm pull-right" onclick="getPdfsSerivicios()">
+                                Exportar a PDF
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-solicitudes-servicios"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="card card-chart">
+                        <div class="card-header">
+                            <h5 class="card-category">Solicitudes De Dietas Diarias</h5>
+                            <h3 class="card-title">Solicitudes Por Dieta</h3>
+                            <button class="btn btn-sm btn-success btn-sm pull-right" onclick="getPdfsDietas()">
+                                Exportar a PDF
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="chart-solicitudes-por-dieta"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{% static 'js/main.js' %}"></script>
+    <script type="text/javascript" charset="utf8" src="{% static 'select2/dist/js/select2.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'inputmask/dist/min/jquery.inputmask.bundle.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8" src="{% static 'js/solicitud-dieta/detalles.js' %}"></script>
+    <script src="{% static 'js/informes/pieChart.js' %}"></script>
+    <script>
+        urlPDF = "{% url 'catalogos:sd-fechas-pdf'%}";
+        urlExport = "{% url 'catalogos:matriz-excel'%}";
+        urlPdfEstadoDietasRange = "{% url 'catalogos:estado-dietas-range-pdf' %}";
+        urlPdfJornadasRange = "{% url 'catalogos:jornadas-range-pdf' %}";
+        urlPdfDietas = "{% url 'catalogos:dietas-pdf' %}";
+        urlPdfServicios = "{% url 'catalogos:servicios-pdf' %}";
+
+        let dateNow = Date.now();
+        let fechaDesde = dateNow;
+        let fechahasta = dateNow;
+        const totalSolicitudesDiarias = 0;
+        // Context de canvas para graficas
+        const ctxSolicitudesDietas = document.getElementById('chart-solicitudes-dietas');
+        const ctxSolicitudesTotales = document.getElementById('chart-solicitudes-dietas-totales');
+        const ctxSolicitudesServicios = document.getElementById('chart-solicitudes-servicios');
+        const ctxSolicitudesPorDietas = document.getElementById('chart-solicitudes-por-dieta');
+        const ctxSolicitudesJornadas = document.getElementById('chart-solicitudes-jornadas');
+
+
+        function getPdfEstadoDietas() {
+            urlPDF = urlPdfEstadoDietasRange;
+            getPdf();
+        }
+
+        function getPdfsJornadas() {
+            urlPDF = urlPdfJornadasRange;
+            getPdf();
+        }
+
+        function getPdfsDietas() {
+            urlPDF = urlPdfDietas;
+            getPdf();
+        }
+
+        function getPdfsSerivicios() {
+            urlPDF = urlPdfServicios;
+            getPdf();
+        }
+
+        function getPdf() {
+            const dataForm = $('form').serializeFormJSON();
+
+            if (dataForm.hasta === '') {
+                swal("Error", "Ingrese la fecha desde", "error");
+                return;
+            }
+
+            if (dataForm.hasta === '') {
+                swal("Error", "Ingrese la fecha Hasta", "error");
+                return;
+            }
+
+
+            $.ajax({
+                url: url_pdf,
+                method: 'GET',
+                headers: {'X-CSRFToken': getCookie('csrftoken')},
+                data: dataForm,
+                success: function () {
+                    debugger;
+                    const usuarioId = (dataForm.usuario === "") ? "0" : dataForm.usuario;
+                    const jornadaId = (dataForm.jornada === "") ? "0" : dataForm.jornada;
+
+                    url_pdf = `${url_pdf}?desde=${dataForm.desde}&hasta=${dataForm.hasta}&usuario=${usuarioId}&jornada=${jornadaId}`;
+                    $(location).attr('href', url_pdf);
+                },
+                error: function () {
+                    swal("Error", "Ocurrio un error inesperado al crear pdf", "error");
+                }
+            });
+
+        }
+
+        $(document).ready(function () {
+
+            $("#button-id-filtrar").on('click', function (e) {
+                const dataForm = $('form').serializeFormJSON();
+
+                if (dataForm.hasta === '') {
+                    swal("Error", "Ingrese la fecha desde", "error");
+                    return;
+                }
+
+                if (dataForm.hasta === '') {
+                    swal("Error", "Ingrese la fecha Hasta", "error");
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    headers: {'X-CSRFToken': getCookie('csrftoken')},
+                    url: "{% url 'catalogos:tipos-informes' %}",
+                    data: dataForm,
+                    success: function (resp) {
+                        const data = resp.data;
+                        $('.total-solicitudes').html(null).append(`Total ${data.solicitudes_dietas_dia}`);
+                        newPieChart(ctxSolicitudesTotales, data.solicitudes_diarias_totales);
+                        newPieChart(ctxSolicitudesServicios, data.servicios_totales);
+                        newPieChart(ctxSolicitudesPorDietas, data.dietas_totales);
+                        newPieChart(ctxSolicitudesJornadas, data.jornadas_totales);
+                    },
+                });
+            });
+        });
+    </script>
+{% endblock %}

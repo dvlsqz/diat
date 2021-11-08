@@ -1,0 +1,92 @@
+{% load auth_extras %}
+
+<div class="sidebar">
+    <!-- Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red" -->
+    <div class="sidebar-wrapper">
+        <div class="logo">
+            <a href="javascript:void(0)" class="simple-text logo-mini">
+                IGSS
+            </a>
+            <a href="javascript:void(0)" class="simple-text logo-normal" title="Nutrición y Alimentación">
+                NL
+            </a>
+        </div>
+        <ul class="nav">
+            {% if request.user|has_group:"Administrador"%}
+                <li class="active ">
+                    <a href="{% url 'index' %}">
+                        <i class="tim-icons icon-chart-pie-36"></i>
+                        <p>Informes Diarios</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'catalogos:tipos-informes' %}">
+                        <i class="tim-icons icon-chart-bar-32"></i> Informes Por Fecha 2019
+                        <i class="fa arrow"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'catalogos:matriz' %}">
+                        <i class="tim-icons icon-atom"></i> Exportar Matriz 
+                        <i class="fa arrow"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'catalogos:solicitudes-dietas' %}">
+                        <i class="tim-icons icon-bullet-list-67"></i>
+                        <p>Dietas Solicitadas</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'catalogos:solicitudes-dietas-servidas' %}">
+                        <i class="tim-icons icon-bullet-list-67"></i>
+                        <p>Dietas Servidas</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'catalogos:solicitud-dieta-create' %}">
+                        <i class="tim-icons icon-simple-add"></i>
+                        <p>Solicitud de Dieta</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'catalogos:servicios' %}">
+                        <i class="tim-icons icon-bullet-list-67"></i>
+                        <p>Servicios</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'catalogos:jornadas' %}">
+                        <i class="tim-icons icon-bullet-list-67"></i>
+                        <p>Jornadas</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'catalogos:dietas' %}">
+                        <i class="tim-icons icon-bullet-list-67"></i>
+                        <p>Dietas</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'catalogos:users' %}">
+                        <i class="tim-icons icon-single-02"></i>
+                        <p>Usuarios</p>
+                    </a>
+                </li>
+            {% elif request.user|has_group:"Encargado"%}
+                <li>
+                    <a href="{% url 'catalogos:solicitud-dieta-create' %}">
+                        <i class="tim-icons icon-single-02"></i>
+                        <p>Solicitud de Dieta</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'catalogos:solicitudes-dietas-encargado' %}">
+                        <i class="tim-icons icon-bullet-list-67"></i>
+                        <p>Dietas Solicitadas</p>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>

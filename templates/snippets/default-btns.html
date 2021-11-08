@@ -1,0 +1,14 @@
+<div class="text-right">
+    {% if object.id %}
+        <button type="submit" class="btn btn-sm btn-warning">
+            <i class="fa fa-pencil"></i> Editar
+        </button>
+    {% else %}
+        <button type="submit" class="btn btn-sm btn-success">
+            <i class="fa fa-save"></i> Guardar
+        </button>
+    {% endif %}
+    <a class="btn btn-sm btn-secondary" href="{{ cancel_url }}">
+        <i class="fa fa-times"></i> Cancelar
+    </a>
+</div>

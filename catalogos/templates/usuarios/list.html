@@ -1,0 +1,129 @@
+{% extends 'base.html' %}}
+{% load static from staticfiles %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'datatables.net-bs4/css/dataTables.bootstrap4.css' %}">
+    <link rel="stylesheet" href="{% static 'datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="card card-nav-tabs">
+        <div class="card-header card-header-primary text-center">
+            Usuarios
+        </div>
+        <div class="card-body">
+            <h4 class="card-title pull-left">Listado</h4>
+            {% url 'catalogos:user-create' as create_url %}
+            {% include 'snippets/link-and-search.html' with create_url=create_url %}
+            <table class="table table-bordered table-striped table-sm" id="data-table"></table>
+        </div>
+    </div>
+    {% include 'snippets/modal-content.html' %}
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" charset="utf8" src="{% static 'datatables.net/js/jquery.dataTables.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-bs4/js/dataTables.bootstrap4.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-colreorder/js/dataTables.colReorder.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+    <!--suppress JSUnresolvedFunction -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/dataTable.js' %}"></script>
+    <script src="{% static 'js/requestForm.js' %}"></script>
+    <!--suppress JSUnresolvedFunction, JSUnresolvedVariable -->
+    <script type="text/javascript">
+        // Sobreescribir urls para los botones
+        urlEditar = "{% url 'catalogos:user-update' pk=0 %}";
+        urlEliminar = "{% url 'catalogos:user-delete' pk=0 %}";
+        urlDetalles = "{% url 'catalogos:user-details' pk=0 %}";
+        let urlDietasTiempo = "{% url 'catalogos:list-tiempo-establecido-user' user_id=0 %}";
+
+        function solicitudesTiempoBtn(data) {
+            urlDietasTiempo = `${urlDietasTiempo.replace("0", data)}`;
+            const btn = `<a class="btn btn-info btn-fab btn-icon btn-round btn-sm" title="Solicitudes" href="${urlDietasTiempo}"><i class="tim-icons icon-bullet-list-67"></i></a>`;
+            urlDietasTiempo = `${urlDietasTiempo.replace(data, "0")}`;
+            return `${btn}`;
+        }
+
+        function cambiarEstado(data) {
+            const url = `${urlEliminar.replace("0", data)}`;
+            swal({
+                title: '¿Desea cambiar el estado del usuario?',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '¡Si!',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#d33',
+                confirmButtonClass: 'btn btn-danger'
+            }).then(function (result) {
+                if (result.value) {
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        headers: {'X-CSRFToken': getCookie('csrftoken')},
+                        success: function (data) {
+                            if (data.result === 'OK') {
+                                success_function();
+                                swal("¡Completado!", "Se ha actualizado el registro.", "success");
+                                $table.DataTable().ajax.reload(null, false);
+                            } else {
+                                swal("Error", "¡Ha ocurrido un error inesperado al realizar la petición!", "error");
+                            }
+                        },
+                        error: function (error) {
+                            swal("Error", "", "error");
+                            let message = '¡Ocurrio un error inesperado al intentar modificar el registro!';
+                            if (error.responseJSON) {
+                                message = error.responseJSON.result;
+                            }
+                            swal("Error", message, "error");
+                        }
+                    });
+                }
+            });
+        }
+
+        function loadDataTable() {
+            let url = "{% url 'catalogos:users-json' %}";
+            let language_url = "{% static 'datatables-translate.json' %}";
+            let columns = [
+                {
+                    data: '0',
+                    title: 'Código',
+                    responsivePriority: 1,
+                    width: '15%',
+                },
+                {
+                    data: '1',
+                    title: 'Usuario',
+                    responsivePriority: 2
+                },
+                {
+                    data: '2',
+                    title: 'Estado',
+                    responsivePriority: 2,
+                },
+                {
+                    data: '0',
+                    title: 'Acciones',
+                    searchable: false,
+                    sortable: false,
+                    width: '18%',
+                    responsivePriority: 3,
+                    render: (data) => `<div class="text-center">${editBtn(data, true)}${activoInactivoBtn(data)}${detailsBtn(data)}${solicitudesTiempoBtn(data)}</div>`
+                }
+            ];
+
+            $table.DataTable(getDefaultDataTables(url, language_url, columns));
+        }
+
+        $(document).ready(function () {
+            defaultConfig();
+            loadDataTable()
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static from staticfiles %}
+{% load auth_extras %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'select2/dist/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'select2-bootstrap4-theme/dist/select2-bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'inputmask/css/inputmask.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="card card-nav-tabs">
+        <div class="card-header card-header-primary text-center">
+            INFORME SII-IGSS  DIETAS POR  TIPO.   SERVIDAS   DURANTE   EL  PERIODO
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'catalogos:tipos-informes' %}" autocomplete="off" id="formInforme">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="title-block">
+                            <h4 class="title"></h4>
+                            <hr/>
+                        </div>
+                        {% crispy form %}
+                        <br>
+                    </div>
+                </div>
+            </form>
+            <br>
+            <br>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{% static 'js/main.js' %}"></script>
+    <script type="text/javascript" charset="utf8" src="{% static 'select2/dist/js/select2.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'inputmask/dist/min/jquery.inputmask.bundle.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8" src="{% static 'js/solicitud-dieta/detalles.js' %}"></script>
+    <script src="{% static 'js/informes/pieChart.js' %}"></script>
+    <!--suppress JSUnresolvedVariable -->
+    <script>
+        urlExport = "{% url 'catalogos:matriz-excel'%}";
+
+        function exportMatriz() {
+            const dataForm = $('form').serializeFormJSON();
+
+            if (dataForm.hasta === '') {
+                Swal.fire("Error", "Ingrese la fecha desde", "error");
+                return;
+            }
+
+            if (dataForm.hasta === '') {
+                Swal.fire("Error", "Ingrese la fecha Hasta", "error");
+                return;
+            }
+
+            Swal.fire({
+                    title: `Exportar Matriz`,
+                    text: 'Este proceso se puede demorar, no cierre la pestaña hasta completar la descarga.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar',
+                    type: 'info'
+                }).then((result) => {
+                    if (result.value) {
+                        const urlExportParams = `${urlExport}?desde=${dataForm.desde}&hasta=${dataForm.hasta}`;
+                        $(location).attr('href', urlExportParams);
+                    }
+                });
+        }
+
+        $(document).ready(function () {
+
+            $("#button-id-exportar").on('click', function (e) {
+                exportMatriz();
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,44 @@
+version: '2'
+services:
+  db:
+    image: mysql:5.7
+    container_name: igss_db_dev
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: sepultura556
+      MYSQL_DATABASE: nutricion_igss
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: dev
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    expose:
+      - "3306"
+  app:
+    container_name: igss_app_dev
+    restart: always
+    environment:
+      DKR_HOSTNAME: db
+      DKR_USERNAME: dev
+      DKR_PASSWORD: dev
+      DKR_DB_NAME: nutricion_igss
+      DKR_PORT: 3306
+      DJANGO_MANAGEPY_MIGRATE: "on"
+      SET_CONTAINER_TIMEZONE: 'true'
+      CONTAINER_TIMEZONE: America/Guatemala
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - .:/var/html
+      - static_volume:/var/html/static_files
+      - media_volume:/var/html/media_files
+    links:
+      - db:db
+    ports:
+      - "8700:80"
+volumes:
+  media_volume: 
+  static_volume:
+  .:
+  db_data:

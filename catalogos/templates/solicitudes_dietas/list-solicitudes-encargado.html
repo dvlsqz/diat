@@ -1,0 +1,103 @@
+{% extends 'base.html' %}}
+{% load static from staticfiles %}
+{% load solicitudes_disponibles %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'datatables.net-bs4/css/dataTables.bootstrap4.css' %}">
+    <link rel="stylesheet" href="{% static 'datatables.net-responsive-bs4/css/responsive.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'datatables.net-bs4/css/dataTables.bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block content %}
+    {% if request.user|solicitudes_disponibles  %}
+        <div class="alert alert-info">
+            <button type="button" aria-hidden="true" class="close" data-dismiss="alert" aria-label="Close">
+                <i class="tim-icons icon-simple-remove"></i>
+            </button>
+            <span><b> Solicitudes De Dietas Disponibles <strong><a class="btn btn-round btn-primary btn-sm" href="{% url 'catalogos:solicitud-dieta-te-create' %}">Crear Solicitud</a></strong></b></span>
+        </div>
+    {% endif %}
+    <div class="card card-nav-tabs">
+        <div class="card-header card-header-primary text-center">
+            Dietas Solicitadas
+        </div>
+        <div class="card-body">
+            <h4 class="card-title pull-left">Listado</h4>
+            {% url 'catalogos:solicitud-dieta-create' as create_url %}
+            {% include 'snippets/link-and-search.html' with create_url=create_url %}
+            <table class="table table-bordered table-striped table-sm" id="data-table"></table>
+        </div>
+    </div>
+    {% include 'snippets/modal-content.html' %}
+{% endblock %}
+
+{% block javascript %}
+    <script type="text/javascript" charset="utf8" src="{% static 'datatables.net/js/jquery.dataTables.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-bs4/js/dataTables.bootstrap4.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-colreorder/js/dataTables.colReorder.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8"
+            src="{% static 'datatables.net-responsive/js/dataTables.responsive.min.js' %}"></script>
+    <script type="text/javascript" charset="utf8" src="{% static 'moment/min/moment.min.js' %}"></script>
+    <!--suppress JSUnresolvedFunction -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/dataTable.js' %}"></script>
+    <script src="{% static 'js/requestForm.js' %}"></script>
+    <!--suppress JSUnresolvedFunction, ES6ModulesDependencies -->
+    <script type="text/javascript">
+        // Sobreescribir urls para los botones
+        urlDetalles = "{% url 'catalogos:solicitud-dieta-details' pk=0 %}";
+
+        function loadDataTable() {
+            let url = "{% url 'catalogos:solicitudes-dietas-json' solicitudes=2 %}";
+            let language_url = "{% static 'datatables-translate.json' %}";
+            let columns = [
+                {
+                    data: '0',
+                    title: 'Código',
+                    responsivePriority: 1,
+                    width: '15%',
+                },
+                {
+                    data: '1',
+                    title: 'Fecha',
+                    responsivePriority: 2,
+                    render: (data) => moment(data).format('DD/MM/YYYY HH:mm:ss')
+                },
+                {
+                    data: '2',
+                    title: 'Jornada',
+                    responsivePriority: 2
+                },
+                {
+                    data: '3',
+                    title: 'Servicio | Personal',
+                    responsivePriority: 2,
+                    searchable: false
+                },
+                {
+                    data: '4',
+                    title: 'Usuario',
+                    responsivePriority: 2
+                },
+                {
+                    data: '0',
+                    title: 'Acciones',
+                    searchable: false,
+                    sortable: false,
+                    width: '18%',
+                    responsivePriority: 3,
+                    render: (data) => `<div class="text-center">${detailsBtn(data, true)}</div>`
+                }
+            ];
+
+            $table.DataTable(getDefaultDataTables(url, language_url, columns));
+        }
+
+        $(document).ready(function () {
+            defaultConfig();
+            loadDataTable()
+        });
+    </script>
+{% endblock %}
